@@ -16,7 +16,7 @@ bot.register_command(
     "inspi: generate an InspiroBot quote",
     "```\n"
     "* inspi\n"
-    "\tgenerate an InspiroBot quote\n"
+    "\tgenerate an InspiroBot quote (<https://inspirobot.me/>)\n"
     "```"
 )
 
