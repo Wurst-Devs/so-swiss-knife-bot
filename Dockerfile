@@ -4,9 +4,11 @@ FROM base as builder
 
 WORKDIR /install
 
+RUN apk update && apk add git gcc musl-dev
+
 COPY requirements.txt /requirements.txt
 
-RUN pip install --install-option="--prefix=/install" -r /requirements.txt
+RUN pip install --prefix=/install -r /requirements.txt
 
 FROM base
 
