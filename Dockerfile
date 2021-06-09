@@ -1,10 +1,8 @@
-FROM python:3.9-alpine as bas
+FROM python:3.9-alpine as base
 
 FROM base as builder
 
 WORKDIR /install
-
-RUN mkdir /install
 
 COPY requirements.txt /requirements.txt
 
