@@ -4,8 +4,6 @@ FROM base as builder
 
 WORKDIR /install
 
-RUN mkdir /install
-
 COPY requirements.txt /requirements.txt
 
 RUN pip install --install-option="--prefix=/install" -r /requirements.txt
