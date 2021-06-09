@@ -1,21 +1,23 @@
 from miniscord import Bot
-import discord
+import logging
 
+import inspirobot
 
-async def hello(client: discord.client, message: discord.Message, *args: str):
-    await message.channel.send("Hello!")
+logging.basicConfig(format="[%(asctime)s][%(levelname)s][%(module)s] %(message)s", level=logging.INFO)
 
 bot = Bot(
     "SoSwissKnife",     # name
     "0.1-alpha",    # version
 )
+
 bot.register_command(
-    "hello",                    # command text (regex)
-    hello,                      # command function
-    "hello: says 'Hello!'",     # short help
-    "```\n"                    # long help
-    "* |help\n"
-    "\tSays 'Hello!'.\n"
+    "inspi(ration(al)?)?",
+    inspirobot.process,
+    "inspi: generate an InspiroBot quote",
+    "```\n"
+    "* inspi\n"
+    "\tgenerate an InspiroBot quote\n"
     "```"
 )
-bot.start()  # this bot respond to "|help", "|info" and "|hello"
+
+bot.start()
