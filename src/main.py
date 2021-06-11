@@ -2,12 +2,13 @@ from miniscord import Bot
 import logging
 
 import inspirobot
+import cat
 
 logging.basicConfig(format="[%(asctime)s][%(levelname)s][%(module)s] %(message)s", level=logging.INFO)
 
 bot = Bot(
     "SoSwissKnife",     # name
-    "0.1-alpha",    # version
+    "0.2-alpha",    # version
 )
 
 bot.register_command(
@@ -17,6 +18,16 @@ bot.register_command(
     "```\n"
     "* inspi\n"
     "\tgenerate an InspiroBot quote (<https://inspirobot.me/>)\n"
+    "```"
+)
+
+bot.register_command(
+    "cat",
+    cat.process,
+    "cat: get a cat",
+    "```\n"
+    "* cat (gif|cute|...)\n"
+    "\tget a cat\n"
     "```"
 )
 
