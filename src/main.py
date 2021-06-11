@@ -11,6 +11,8 @@ bot = Bot(
     "0.2-alpha",    # version
 )
 
+bot.log_calls = True
+
 bot.register_command(
     "inspi(ration(al)?)?",
     inspirobot.process,
