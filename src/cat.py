@@ -3,6 +3,7 @@ import requests
 import io
 import time
 
+
 async def process(client: discord.client, message: discord.Message, *args: str):
     try:
         if "tags" in args:
@@ -11,6 +12,7 @@ async def process(client: discord.client, message: discord.Message, *args: str):
             await random_cat(message, *args)
     except Exception as e:
         await message.channel.send(f"Python Exception:\n```{e}```")
+
 
 async def cat_tags(message: discord.Message):
     uri = "https://cataas.com/api/tags"
@@ -30,12 +32,14 @@ async def cat_tags(message: discord.Message):
     else:
         await message.channel.send(f"Could not get a cat tags D: (`{r.status_code})")
 
+
 def get_filename(r: requests.Response):
     ctype = r.headers["Content-Type"]
     if ctype.startswith("image/"):
         return f"{int(time.time())}.{ctype[6:]}"
     else:
         return f"{int(time.time())}"
+
 
 async def random_cat(message: discord.Message, *args: str):
     uri = "https://cataas.com/cat"
@@ -44,6 +48,10 @@ async def random_cat(message: discord.Message, *args: str):
     r = requests.get(uri)
     if r.status_code == 200:
         with io.BytesIO(r.content) as f:
-            await message.channel.send("", file=discord.File(f, filename=get_filename(r)))
+            await message.channel.send(
+                "", file=discord.File(f, filename=get_filename(r))
+            )
     else:
-        await message.channel.send(f"Could not get a cat D: ({r.status_code}), see tags by adding `tags`")
+        await message.channel.send(
+            f"Could not get a cat D: ({r.status_code}), see tags by adding `tags`"
+        )

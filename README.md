@@ -8,7 +8,7 @@ Multi-purpose Discord bot
 pip3 install -r requirements.txt
 ```
 
-2. Make a .env file as following
+2. Make a `.env` file as following
 ```
 #.env
 DISCORD_TOKEN=<bot token from discordapp.com/developers>
