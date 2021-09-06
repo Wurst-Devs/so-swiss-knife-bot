@@ -5,3 +5,4 @@ error_*
 *.log
 .vscode
 .env
+data
