@@ -14,7 +14,11 @@ FROM base
 
 WORKDIR /app
 
+VOLUME ["/app/data"]
+
 COPY --from=builder /install /usr/local
+
+RUN mkdir -p data
 
 COPY . .
 
