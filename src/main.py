@@ -44,11 +44,11 @@ bot.register_command(
 )
 
 
-async def on_ready() -> bool:
+async def on_connect() -> bool:
     schedule.Worker(bot).start()
     return True
 
 
-bot.register_event(on_ready)
+bot.register_event(on_connect)
 
 bot.start()
