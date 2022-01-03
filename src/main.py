@@ -50,7 +50,7 @@ async def on_connect() -> bool:
     if lock.is_locked():
         logging.info(f"already running bot")
         sys.exit(0)
-    lock.Lock().start()
+    lock.lock()
     schedule.Worker(bot).start()
     return True
 

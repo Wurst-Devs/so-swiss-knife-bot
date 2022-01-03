@@ -1,6 +1,6 @@
 import socket
 import socketserver
-import asyncio
+import threading
 
 PORT = 53849
 LOCATION = ('localhost', PORT)
@@ -11,18 +11,8 @@ def is_locked():
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.data = self.request.recv(1024).strip()
-        self.request.sendall(self.data)
+        pass
 
-class Lock:
-    def __init__(
-        self,
-    ):
-        self.loop = asyncio.get_event_loop()
-
-    def start(self):
-        asyncio.run_coroutine_threadsafe(self.process(), self.loop)
-    
-    async def process(self):
-        with socketserver.TCPServer(LOCATION, Handler) as server:
-            server.serve_forever()
+def lock():
+    with socketserver.TCPServer(LOCATION, Handler) as server:
+        threading.Thread(target=server.serve_forever)
