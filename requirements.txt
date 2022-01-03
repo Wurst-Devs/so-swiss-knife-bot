@@ -3,4 +3,4 @@ python-dotenv>=0.17.1
 requests>=2.25.1
 git+git://github.com/Klemek/miniscord.git
 croniter>=1.0.15
-pytz>=2021.1
+python-dateutil>=1.4

@@ -1,8 +1,8 @@
 import discord
 from miniscord import Bot
 from croniter import croniter
-import pytz
 from datetime import datetime
+import dateutil.tz
 import asyncio
 import os.path
 import os
@@ -10,7 +10,7 @@ import json
 
 scheduled = {}
 
-tz = pytz.timezone("Europe/Paris")
+tz = dateutil.tz.gettz("Europe/Paris")
 
 DATA_DIR = "data"
 SCHEDULED_FILE = os.path.join(DATA_DIR, "scheduled.json")
@@ -40,7 +40,7 @@ class Worker:
 
     async def process(self):
         while True:
-            local_date = tz.localize(datetime.now())
+            local_date = datetime.now(tz)
             for (
                 channel_id,
                 message_content,
@@ -93,6 +93,8 @@ async def process(client: discord.client, message: discord.Message, *args: str):
             await message.channel.send(f"Cannot find message")
     else:
         scheduled[key] = (channel_id, args[1], args[2], message.channel.id, message.id)
-        await message.channel.send(f"Message scheduled")
+        local_date = datetime.now(tz)
+        next = croniter(args[2], local_date).get_next(datetime)
+        await message.channel.send(f"Message scheduled (next: {next:%Y-%m-%d %H:%M})")
     with open(SCHEDULED_FILE, "w") as fp:
         json.dump(scheduled, fp)
