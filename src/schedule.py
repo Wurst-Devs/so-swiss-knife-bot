@@ -1,3 +1,4 @@
+import logging
 import discord
 from miniscord import Bot
 from croniter import croniter
@@ -22,7 +23,7 @@ if os.path.exists(SCHEDULED_FILE):
     try:
         with open(SCHEDULED_FILE, "r") as fp:
             scheduled = json.load(fp)
-            print(f"loaded {len(scheduled)} events")
+            logging.info(f"loaded {len(scheduled)} events")
     except:
         pass
 
@@ -50,7 +51,7 @@ class Worker:
             ) in scheduled.values():
                 try:
                     if croniter.match(crontab, local_date):
-                        print("executing", message_content)
+                        logging.info(f"executing: {message_content}")
                         channel = await self.bot.client.fetch_channel(channel_id)
                         if message_content.startswith("self "):
                             message_content = message_content.lstrip("self ")
@@ -70,7 +71,7 @@ class Worker:
                         else:
                             await channel.send(message_content)
                 except Exception as e:
-                    print(e)
+                    logging.exception(e)
             await asyncio.sleep(60)
 
 

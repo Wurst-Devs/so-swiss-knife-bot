@@ -1,13 +1,15 @@
 from miniscord import Bot
 import logging
-
-import inspirobot
-import cat
-import schedule
+import sys
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s][%(module)s] %(message)s", level=logging.INFO
 )
+
+import inspirobot
+import cat
+import schedule
+import lock
 
 bot = Bot(
     "SoSwissKnife",  # name
@@ -45,6 +47,10 @@ bot.register_command(
 
 
 async def on_connect() -> bool:
+    if lock.is_locked():
+        logging.info(f"already running bot")
+        sys.exit(0)
+    lock.Lock().start()
     schedule.Worker(bot).start()
     return True
 
