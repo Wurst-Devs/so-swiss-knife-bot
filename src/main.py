@@ -10,6 +10,7 @@ import inspirobot
 import cat
 import schedule
 import lock
+import rss
 
 bot = Bot(
     "SoSwissKnife",  # name
@@ -45,6 +46,13 @@ bot.register_command(
     "```",
 )
 
+bot.register_command(
+    "rss",
+    rss.process,
+    "rss: subscribe to RSS feed",
+    "```\n" "* rss URL (optionnal channel)\n" "* rss URL cancel\n" "```",
+)
+
 
 async def on_connect() -> bool:
     if lock.is_locked():
@@ -52,6 +60,7 @@ async def on_connect() -> bool:
         sys.exit(0)
     lock.lock()
     schedule.Worker(bot).start()
+    rss.Worker(bot).start()
     return True
 
 
