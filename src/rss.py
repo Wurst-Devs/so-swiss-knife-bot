@@ -67,7 +67,7 @@ class Worker:
                             max_link = link
                     if max_link is not None:
                         channel = await self.bot.client.fetch_channel(channel_id)
-                        await channel.send(link)
+                        await channel.send(max_link)
                         feeds[key] = (channel_id, feed_url, max_timestamp)
                         with open(RSS_FILE, "w") as fp:
                             json.dump(feeds, fp)
