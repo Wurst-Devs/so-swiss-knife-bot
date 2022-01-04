@@ -30,7 +30,7 @@ if os.path.exists(RSS_FILE):
 
 
 def read_url_xml(url: str) -> ET.Element:
-    response = requests.get(url, verify=False, timeout=REQUEST_TIMEOUT)
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
     if response.status_code == 200:
         try:
             return ET.fromstring(response.content.decode("utf8"))
