@@ -14,6 +14,8 @@ feeds = {}
 
 DATA_DIR = "data"
 RSS_FILE = os.path.join(DATA_DIR, "rss.json")
+REQUEST_TIMEOUT = 5
+SLEEP = 300 # 5 min
 
 if not os.path.exists("data"):
     os.mkdir("data")
@@ -28,7 +30,7 @@ if os.path.exists(RSS_FILE):
 
 
 def read_url_xml(url: str) -> ET.Element:
-    response = requests.get(url)
+    response = requests.get(url, verify=False, timeout=REQUEST_TIMEOUT)
     if response.status_code == 200:
         try:
             return ET.fromstring(response.content.decode("utf8"))
@@ -71,9 +73,11 @@ class Worker:
                         feeds[key] = (channel_id, feed_url, max_timestamp)
                         with open(RSS_FILE, "w") as fp:
                             json.dump(feeds, fp)
+                except requests.exceptions.Timeout:
+                    pass
                 except Exception as e:
                     logging.exception(e)
-            await asyncio.sleep(60)
+            await asyncio.sleep(SLEEP)
 
 
 async def process(client: discord.client, message: discord.Message, *args: str):
