@@ -114,16 +114,17 @@ async def process_scheduled(client: discord.client, message: discord.Message, *a
     keys = [key for key in scheduled if key.startswith(str(channel_id))]
     if len(keys) == 0:
         await message.channel.send(f"No scheduled messages for this channel")
-    out = "__Scheduled messages for this channel:__"
-    local_date = datetime.now(tz)
-    for i, key in enumerate(keys):
-        _, message_content, crontab, _, _ = scheduled[key]
-        next = croniter(crontab, local_date).get_next(datetime)
-        message_content = discord.utils.escape_markdown(discord.utils.escape_mentions(message_content))
-        line = f"{i + 1} - `{crontab}` `{message_content}` (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
-        if len(out + line) > 2000:
-            await message.channel.send(out)
-            out = line
-        else:
-            out += "\n" + line
-    await message.channel.send(out)
+    else:
+        out = "__Scheduled messages for this channel:__"
+        local_date = datetime.now(tz)
+        for i, key in enumerate(keys):
+            _, message_content, crontab, _, _ = scheduled[key]
+            next = croniter(crontab, local_date).get_next(datetime)
+            message_content = discord.utils.escape_markdown(discord.utils.escape_mentions(message_content))
+            line = f"{i + 1} - `{crontab}` `{message_content}` (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
+            if len(out + line) > 2000:
+                await message.channel.send(out)
+                out = line
+            else:
+                out += "\n" + line
+        await message.channel.send(out)
