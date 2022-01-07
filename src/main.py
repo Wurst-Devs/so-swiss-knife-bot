@@ -38,11 +38,20 @@ bot.register_command(
 
 bot.register_command(
     "schedule",
-    schedule.process,
+    schedule.process_schedule,
     "schedule: schedule command",
     "```\n"
     '* schedule "message content" "crontab format" (optionnal channel)\n'
     '* schedule "message content" cancel\n'
+    "```",
+)
+
+bot.register_command(
+    "scheduled",
+    schedule.process_scheduled,
+    "scheduled: list scheduled command",
+    "```\n"
+    '* scheduled (optionnal channel)\n'
     "```",
 )
 

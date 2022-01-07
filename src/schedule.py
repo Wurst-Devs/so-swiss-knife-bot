@@ -9,6 +9,7 @@ import os.path
 import os
 import json
 import time
+import base64
 
 scheduled = {}
 
@@ -76,7 +77,7 @@ class Worker:
             await asyncio.sleep(60)
 
 
-async def process(client: discord.client, message: discord.Message, *args: str):
+async def process_schedule(client: discord.client, message: discord.Message, *args: str):
     if len(args) < 3:
         await message.channel.send(f"Invalid number of arguments")
         return
@@ -88,7 +89,11 @@ async def process(client: discord.client, message: discord.Message, *args: str):
         channel_id = message.channel_mentions[0].id
     key = f"{channel_id}/{args[1]}"
     if args[2] == "cancel":
-        if key in scheduled:
+        keys = [k for k in scheduled if k.startswith(str(channel_id))]
+        if args[1].isdigit() and 1 <= int(args[1]) <= len(keys):
+            del scheduled[keys[int(args[1]) - 1]]
+            await message.channel.send(f"Message canceled")
+        elif key in scheduled:
             del scheduled[key]
             await message.channel.send(f"Message canceled")
         else:
@@ -100,3 +105,25 @@ async def process(client: discord.client, message: discord.Message, *args: str):
         await message.channel.send(f"Message scheduled (next: <t:{int(time.mktime(next.timetuple()))}:f>)")
     with open(SCHEDULED_FILE, "w") as fp:
         json.dump(scheduled, fp)
+
+
+async def process_scheduled(client: discord.client, message: discord.Message, *args: str):
+    channel_id = message.channel.id
+    if len(message.channel_mentions) > 0:
+        channel_id = message.channel_mentions[0].id
+    keys = [key for key in scheduled if key.startswith(str(channel_id))]
+    if len(keys) == 0:
+        await message.channel.send(f"No scheduled messages for this channel")
+    out = "__Scheduled messages for this channel:__"
+    local_date = datetime.now(tz)
+    for i, key in enumerate(keys):
+        _, message_content, crontab, _, _ = scheduled[key]
+        next = croniter(crontab, local_date).get_next(datetime)
+        message_content = discord.utils.escape_markdown(discord.utils.escape_mentions(message_content))
+        line = f"{i + 1} - `{crontab}` `{message_content}` (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
+        if len(out + line) > 2000:
+            await message.channel.send(out)
+            out = line
+        else:
+            out += "\n" + line
+    await message.channel.send(out)
