@@ -8,6 +8,7 @@ import asyncio
 import os.path
 import os
 import json
+import time
 
 scheduled = {}
 
@@ -96,6 +97,6 @@ async def process(client: discord.client, message: discord.Message, *args: str):
         scheduled[key] = (channel_id, args[1], args[2], message.channel.id, message.id)
         local_date = datetime.now(tz)
         next = croniter(args[2], local_date).get_next(datetime)
-        await message.channel.send(f"Message scheduled (next: {next:%Y-%m-%d %H:%M})")
+        await message.channel.send(f"Message scheduled (next: <t:{int(time.mktime(next.timetuple()))}:f>)")
     with open(SCHEDULED_FILE, "w") as fp:
         json.dump(scheduled, fp)
