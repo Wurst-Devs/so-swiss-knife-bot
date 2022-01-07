@@ -14,6 +14,9 @@ FROM base
 
 WORKDIR /app
 
+ENV TZ=Europe/Paris
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 VOLUME ["/app/data"]
 
 COPY --from=builder /install /usr/local
