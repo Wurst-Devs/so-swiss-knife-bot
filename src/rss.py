@@ -55,7 +55,7 @@ class Worker:
             for key in feeds:
                 channel_id, feed_url, latest_timestamp = feeds[key]
                 max_timestamp = latest_timestamp
-                max_link = None
+                links = []
                 try:
                     content = read_url_xml(feed_url)
                     channel = content[0]
@@ -66,10 +66,12 @@ class Worker:
                         ).timestamp()
                         if max_timestamp is None or timestamp > max_timestamp:
                             max_timestamp = timestamp
-                            max_link = link
-                    if max_link is not None:
+                            links += [link]
+                    if len(links) > 0:
                         channel = await self.bot.client.fetch_channel(channel_id)
-                        await channel.send(max_link)
+                        if latest_timestamp is not None:
+                            for link in links:
+                                await channel.send(link)
                         feeds[key] = (channel_id, feed_url, max_timestamp)
                         with open(RSS_FILE, "w") as fp:
                             json.dump(feeds, fp)

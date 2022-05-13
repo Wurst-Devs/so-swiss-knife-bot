@@ -14,7 +14,7 @@ import rss
 
 bot = Bot(
     "SoSwissKnife",  # name
-    "0.2-alpha",  # version
+    "0.3",  # version
 )
 
 bot.log_calls = True
