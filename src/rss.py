@@ -64,8 +64,8 @@ class Worker:
                         timestamp = datetime.strptime(
                             item.find("pubDate").text, "%a, %d %b %Y %H:%M:%S %z"
                         ).timestamp()
-                        if max_timestamp is None or timestamp > max_timestamp:
-                            max_timestamp = timestamp
+                        if latest_timestamp is None or timestamp > latest_timestamp:
+                            max_timestamp = max(max_timestamp, timestamp)
                             links += [link]
                     if len(links) > 0:
                         channel = await self.bot.client.fetch_channel(channel_id)
