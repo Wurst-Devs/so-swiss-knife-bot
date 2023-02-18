@@ -39,6 +39,10 @@ def read_url_xml(url: str) -> ET.Element:
     return None
 
 
+def parse_feed_timestamp(text):
+    return datetime.strptime(text, "%a, %d %b %Y %H:%M:%S %z").timestamp()
+
+
 class Worker:
     def __init__(
         self,
@@ -59,14 +63,23 @@ class Worker:
                 try:
                     content = read_url_xml(feed_url)
                     channel = content[0]
+                    try:
+                        feed_timestamp = parse_feed_timestamp(channel.find("lastBuildDate").text)
+                    except:
+                        feed_timestamp = None
                     for item in channel.findall("item"):
                         link = item.find("link").text
-                        timestamp = datetime.strptime(
-                            item.find("pubDate").text, "%a, %d %b %Y %H:%M:%S %z"
-                        ).timestamp()
-                        if latest_timestamp is None or timestamp > latest_timestamp:
-                            max_timestamp = max(max_timestamp, timestamp)
-                            links += [link]
+                        strdate = None
+                        try:
+                            timestamp = parse_feed_timestamp(item.find("pubDate").text)
+                            if latest_timestamp is None or timestamp > latest_timestamp:
+                                max_timestamp = max(max_timestamp, timestamp)
+                                links += [link]
+                        except:
+                            if feed_timestamp is not None and latest_timestamp is None:
+                                latest_timestamp = feed_timestamp
+                                max_timestamp = feed_timestamp
+                                links += [link]
                     if len(links) > 0:
                         channel = await self.bot.client.fetch_channel(channel_id)
                         if latest_timestamp is not None:
@@ -78,6 +91,7 @@ class Worker:
                 except requests.exceptions.Timeout:
                     pass
                 except Exception as e:
+                    logging.error(f"FEED: {feed_url}")
                     logging.exception(e)
             await asyncio.sleep(SLEEP)
 
