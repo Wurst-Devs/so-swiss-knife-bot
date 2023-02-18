@@ -15,7 +15,7 @@ feeds = {}
 DATA_DIR = "data"
 RSS_FILE = os.path.join(DATA_DIR, "rss.json")
 REQUEST_TIMEOUT = 5
-SLEEP = 300 # 5 min
+SLEEP = 300  # 5 min
 
 if not os.path.exists("data"):
     os.mkdir("data")
@@ -67,13 +67,17 @@ class Worker:
                         feed_timestamp = parse_feed_timestamp(channel.find("lastBuildDate").text)
                     except:
                         feed_timestamp = None
-                    for item in channel.findall("item"):
+                    for item in channel.findall("item")[::-1]:
                         link = item.find("link").text
                         strdate = None
                         try:
                             timestamp = parse_feed_timestamp(item.find("pubDate").text)
                             if latest_timestamp is None or timestamp > latest_timestamp:
-                                max_timestamp = max(max_timestamp, timestamp)
+                                max_timestamp = (
+                                    max(max_timestamp, timestamp)
+                                    if max_timestamp is not None
+                                    else timestamp
+                                )
                                 links += [link]
                         except:
                             if feed_timestamp is not None and latest_timestamp is None:
@@ -82,7 +86,7 @@ class Worker:
                                 links += [link]
                     if len(links) > 0:
                         channel = await self.bot.client.fetch_channel(channel_id)
-                        if latest_timestamp is not None:
+                        if max_timestamp is not None:
                             for link in links:
                                 await channel.send(link)
                         feeds[key] = (channel_id, feed_url, max_timestamp)
