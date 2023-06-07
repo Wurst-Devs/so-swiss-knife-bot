@@ -77,7 +77,9 @@ class Worker:
             await asyncio.sleep(60)
 
 
-async def process_schedule(client: discord.client, message: discord.Message, *args: str):
+async def process_schedule(
+    client: discord.client, message: discord.Message, *args: str
+):
     if len(args) < 3:
         await message.channel.send(f"Invalid number of arguments")
         return
@@ -102,12 +104,16 @@ async def process_schedule(client: discord.client, message: discord.Message, *ar
         scheduled[key] = (channel_id, args[1], args[2], message.channel.id, message.id)
         local_date = datetime.now(tz)
         next = croniter(args[2], local_date).get_next(datetime)
-        await message.channel.send(f"Message scheduled (next: <t:{int(time.mktime(next.timetuple()))}:f>)")
+        await message.channel.send(
+            f"Message scheduled (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
+        )
     with open(SCHEDULED_FILE, "w") as fp:
         json.dump(scheduled, fp)
 
 
-async def process_scheduled(client: discord.client, message: discord.Message, *args: str):
+async def process_scheduled(
+    client: discord.client, message: discord.Message, *args: str
+):
     channel_id = message.channel.id
     if len(message.channel_mentions) > 0:
         channel_id = message.channel_mentions[0].id
@@ -120,7 +126,9 @@ async def process_scheduled(client: discord.client, message: discord.Message, *a
         for i, key in enumerate(keys):
             _, message_content, crontab, _, _ = scheduled[key]
             next = croniter(crontab, local_date).get_next(datetime)
-            message_content = discord.utils.escape_markdown(discord.utils.escape_mentions(message_content))
+            message_content = discord.utils.escape_markdown(
+                discord.utils.escape_mentions(message_content)
+            )
             line = f"{i + 1} - `{crontab}` `{message_content}` (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
             if len(out + line) > 2000:
                 await message.channel.send(out)

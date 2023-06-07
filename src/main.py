@@ -1,6 +1,9 @@
 from miniscord import Bot
+import discord
 import logging
 import sys
+import random
+import os
 
 logging.basicConfig(
     format="[%(asctime)s][%(levelname)s][%(module)s] %(message)s", level=logging.INFO
@@ -11,10 +14,38 @@ import cat
 import schedule
 import lock
 import rss
+import caps_alert
+
+
+async def on_connect() -> bool:
+    if lock.is_locked():
+        logging.info(f"already running bot")
+        sys.exit(0)
+    lock.lock()
+    schedule.Worker(bot).start()
+    rss.Worker(bot).start()
+    return True
+
+
+async def on_message(client: discord.client, message: discord.Message):
+    await caps_alert.on_message(message)
+
+
+with open(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "quotes.txt"))
+) as file:
+    quotes = [line.strip() for line in file]
+
+
+async def on_mention(client: discord.client, message: discord.Message, *args: str):
+    await message.channel.send(
+        random.choice(quotes).replace("%author", message.author.mention)
+    )
+
 
 bot = Bot(
     "SoSwissKnife",  # name
-    "0.3",  # version
+    "0.4",  # version
 )
 
 bot.log_calls = True
@@ -50,9 +81,7 @@ bot.register_command(
     "scheduled",
     schedule.process_scheduled,
     "scheduled: list scheduled command",
-    "```\n"
-    '* scheduled (optionnal channel)\n'
-    "```",
+    "```\n" "* scheduled (optionnal channel)\n" "```",
 )
 
 bot.register_command(
@@ -62,17 +91,18 @@ bot.register_command(
     "```\n" "* rss URL (optionnal channel)\n" "* rss URL cancel\n" "```",
 )
 
-
-async def on_connect() -> bool:
-    if lock.is_locked():
-        logging.info(f"already running bot")
-        sys.exit(0)
-    lock.lock()
-    schedule.Worker(bot).start()
-    rss.Worker(bot).start()
-    return True
+bot.register_command(
+    "caps",
+    caps_alert.process,
+    "caps: react to caps locked messages",
+    "```\n" "* caps (discord emote)\n" "* caps off\n" "```",
+)
 
 
 bot.register_event(on_connect)
+
+bot.register_watcher(on_message)
+
+bot.register_fallback(on_mention)
 
 bot.start()

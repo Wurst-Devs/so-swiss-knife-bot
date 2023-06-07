@@ -1,32 +1,17 @@
 import logging
 import discord
 from miniscord import Bot
-import os.path
-import os
-import json
 import requests
 import asyncio
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import base64
+from lib.data import load_data, save_data
 
-feeds = {}
-
-DATA_DIR = "data"
-RSS_FILE = os.path.join(DATA_DIR, "rss.json")
 REQUEST_TIMEOUT = 5
 SLEEP = 300  # 5 min
 
-if not os.path.exists("data"):
-    os.mkdir("data")
-
-if os.path.exists(RSS_FILE):
-    try:
-        with open(RSS_FILE, "r") as fp:
-            feeds = json.load(fp)
-            logging.info(f"loaded {len(feeds)} rss feeds")
-    except:
-        pass
+feeds = load_data("rss", default={})
 
 
 def read_url_xml(url: str) -> ET.Element:
@@ -77,8 +62,7 @@ class Worker:
                             for link in links:
                                 await channel.send(link)
                         feeds[key] = (channel_id, feed_url, max_timestamp)
-                        with open(RSS_FILE, "w") as fp:
-                            json.dump(feeds, fp)
+                        save_data("rss", feeds)
                 except requests.exceptions.Timeout:
                     pass
                 except Exception as e:
@@ -122,5 +106,4 @@ async def process(client: discord.client, message: discord.Message, *args: str):
                 f"Cannot subscribe to RSS Feed: cannot read feed from URL"
             )
             return
-    with open(RSS_FILE, "w") as fp:
-        json.dump(feeds, fp)
+    save_data("rss", feeds)
