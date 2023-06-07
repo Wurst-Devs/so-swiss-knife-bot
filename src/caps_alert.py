@@ -30,5 +30,6 @@ async def on_message(message: discord.Message):
         and message.content != None
         and len(message.content) > 0
         and message.content == message.content.upper()
+        and message.content != message.content.lower()
     ):
         await message.add_reaction(config[str(message.guild.id)])
