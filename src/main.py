@@ -15,6 +15,7 @@ import schedule
 import lock
 import rss
 import caps_alert
+import distopia
 
 
 async def on_connect() -> bool:
@@ -29,6 +30,7 @@ async def on_connect() -> bool:
 
 async def on_message(client: discord.client, message: discord.Message):
     await caps_alert.on_message(message)
+    await distopia.on_message(message)
 
 
 with open(
@@ -45,7 +47,7 @@ async def on_mention(client: discord.client, message: discord.Message, *args: st
 
 bot = Bot(
     "SoSwissKnife",  # name
-    "0.4.1",  # version
+    "0.4.2",  # version
 )
 
 bot.log_calls = True
@@ -96,6 +98,13 @@ bot.register_command(
     caps_alert.process,
     "caps: react to caps locked messages",
     "```\n" "* caps (discord emote)\n" "* caps off\n" "```",
+)
+
+bot.register_command(
+    "distopia",
+    distopia.process,
+    "distopia: react to words starting with di or cri",
+    "```\n" "* distopia (floating chance <=1)\n" "* distopia off\n" "```",
 )
 
 
