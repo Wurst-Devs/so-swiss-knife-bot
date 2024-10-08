@@ -47,35 +47,45 @@ class Worker:
                 links = []
                 try:
                     content = read_url_xml(feed_url)
-                    channel = content[0]
-                    try:
-                        feed_timestamp = parse_feed_timestamp(channel.find("lastBuildDate").text)
-                    except:
-                        feed_timestamp = None
-                    for item in channel.findall("item")[::-1]:
-                        link = item.find("link").text
-                        strdate = None
+                    if content is not None:
+                        channel = content[0]
                         try:
-                            timestamp = parse_feed_timestamp(item.find("pubDate").text)
-                            if latest_timestamp is None or timestamp > latest_timestamp:
-                                max_timestamp = (
-                                    max(max_timestamp, timestamp)
-                                    if max_timestamp is not None
-                                    else timestamp
-                                )
-                                links += [link]
+                            feed_timestamp = parse_feed_timestamp(
+                                channel.find("lastBuildDate").text
+                            )
                         except:
-                            if feed_timestamp is not None and latest_timestamp is None:
-                                latest_timestamp = feed_timestamp
-                                max_timestamp = feed_timestamp
-                                links += [link]
-                    if len(links) > 0:
-                        channel = await self.bot.client.fetch_channel(channel_id)
-                        if max_timestamp is not None:
-                            for link in links:
-                                await channel.send(link)
-                        feeds[key] = (channel_id, feed_url, max_timestamp)
-                        save_data("rss", feeds)
+                            feed_timestamp = None
+                        for item in channel.findall("item")[::-1]:
+                            link = item.find("link").text
+                            try:
+                                timestamp = parse_feed_timestamp(
+                                    item.find("pubDate").text
+                                )
+                                if (
+                                    latest_timestamp is None
+                                    or timestamp > latest_timestamp
+                                ):
+                                    max_timestamp = (
+                                        max(max_timestamp, timestamp)
+                                        if max_timestamp is not None
+                                        else timestamp
+                                    )
+                                    links += [link]
+                            except:
+                                if (
+                                    feed_timestamp is not None
+                                    and latest_timestamp is None
+                                ):
+                                    latest_timestamp = feed_timestamp
+                                    max_timestamp = feed_timestamp
+                                    links += [link]
+                        if len(links) > 0:
+                            channel = await self.bot.client.fetch_channel(channel_id)
+                            if max_timestamp is not None:
+                                for link in links:
+                                    await channel.send(link)
+                            feeds[key] = (channel_id, feed_url, max_timestamp)
+                            save_data("rss", feeds)
                 except requests.exceptions.Timeout:
                     pass
                 except Exception as e:
