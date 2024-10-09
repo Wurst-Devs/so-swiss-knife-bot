@@ -86,10 +86,10 @@ class Worker:
                                 link_node = item.find("link")
                                 link = link_node.text if link_node.text is not None else link_node.attrib['href']
                                 new_seen += [link]
-                                title = item.find("title")
+                                item_title = item.find("title")
                                 discarding = False
                                 if regex is not None:
-                                    if title is None or re.search(regex, title.text, re.IGNORECASE) is None:
+                                    if item_title is None or re.search(regex, item_title.text, re.IGNORECASE) is None:
                                         discarding = True
                                         new_seen.remove(link)
                                 if not discarding and link not in seen:
