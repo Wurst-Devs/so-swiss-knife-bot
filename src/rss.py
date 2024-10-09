@@ -104,6 +104,10 @@ class Worker:
                                 save_data("rss", feeds)
                     except requests.exceptions.Timeout:
                         pass
+                    except discord.errors.Forbidden:
+                        logging.warning(f"Deleting feed: \"{title}\" for {key}")
+                        del feeds[key]
+                        save_data("rss", feeds)
                     except Exception as e:
                         logging.error(f"FEED: {feed_url}")
                         logging.exception(e)
