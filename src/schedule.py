@@ -39,6 +39,7 @@ class Worker:
         self.loop = asyncio.get_event_loop()
 
     def start(self):
+        logging.info("Running worker...")
         asyncio.run_coroutine_threadsafe(self.process(), self.loop)
 
     async def process(self):
