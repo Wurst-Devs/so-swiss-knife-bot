@@ -47,7 +47,7 @@ async def on_mention(client: discord.client, message: discord.Message, *args: st
 
 bot = Bot(
     "SoSwissKnife",  # name
-    "0.5.3",  # version
+    "0.5.4",  # version
 )
 
 bot.log_calls = True
@@ -76,6 +76,7 @@ bot.register_command(
     "```\n"
     '* schedule "message content" "crontab format" (optionnal channel)\n'
     '* schedule "message content" cancel\n'
+    "* schedule list\n"
     "```",
 )
 
@@ -90,7 +91,11 @@ bot.register_command(
     "rss",
     rss.process,
     "rss: subscribe to RSS feed",
-    "```\n" "* rss URL (optionnal channel) (optional title regex)\n" "* rss URL cancel\n" "```",
+    "```\n"
+    "* rss URL (optionnal channel) (optional title regex)\n"
+    "* rss URL cancel\n"
+    "* rss list\n"
+    "```",
 )
 
 bot.register_command(

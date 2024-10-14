@@ -9,25 +9,13 @@ import os.path
 import os
 import json
 import time
+from lib.data import load_data, save_data
 import base64
 
-scheduled = {}
+scheduled = load_data("scheduled", default={})
+logging.info(f"Loaded {len(scheduled)} events")
 
 tz = dateutil.tz.gettz("Europe/Paris")
-
-DATA_DIR = "data"
-SCHEDULED_FILE = os.path.join(DATA_DIR, "scheduled.json")
-
-if not os.path.exists("data"):
-    os.mkdir("data")
-
-if os.path.exists(SCHEDULED_FILE):
-    try:
-        with open(SCHEDULED_FILE, "r") as fp:
-            scheduled = json.load(fp)
-            logging.info(f"loaded {len(scheduled)} events")
-    except:
-        pass
 
 
 class Worker:
@@ -45,16 +33,17 @@ class Worker:
     async def process(self):
         while True:
             local_date = datetime.now(tz)
-            for (
-                channel_id,
-                message_content,
-                crontab,
-                original_channel_id,
-                original_message_id,
-            ) in scheduled.values():
+            for key in scheduled:
+                (
+                    channel_id,
+                    message_content,
+                    crontab,
+                    original_channel_id,
+                    original_message_id,
+                ) = scheduled[key]
                 try:
                     if croniter.match(crontab, local_date):
-                        logging.info(f"executing: {message_content}")
+                        logging.info(f"Executing: {message_content}")
                         channel = await self.bot.client.fetch_channel(channel_id)
                         if message_content.startswith("self "):
                             message_content = message_content.lstrip("self ")
@@ -73,6 +62,10 @@ class Worker:
                             await self.bot.on_message(original_message)
                         else:
                             await channel.send(message_content)
+                except discord.Forbidden:
+                    logging.warning(f"Deleting: {message_content}")
+                    del scheduled[key]
+                    save_data("scheduled", scheduled)
                 except Exception as e:
                     logging.exception(e)
             await asyncio.sleep(60)
@@ -81,6 +74,11 @@ class Worker:
 async def process_schedule(
     client: discord.client, message: discord.Message, *args: str
 ):
+    if len(args) > 1 and args[1] == "list":
+        return await process_scheduled(client, message, *args)
+    if len(message.channel_mentions) > 1:
+        await message.channel.send(f"Too many channels")
+        return
     if len(args) < 3:
         await message.channel.send(f"Invalid number of arguments")
         return
@@ -108,13 +106,15 @@ async def process_schedule(
         await message.channel.send(
             f"Message scheduled (next: <t:{int(time.mktime(next.timetuple()))}:f>)"
         )
-    with open(SCHEDULED_FILE, "w") as fp:
-        json.dump(scheduled, fp)
+    save_data("scheduled", scheduled)
 
 
 async def process_scheduled(
     client: discord.client, message: discord.Message, *args: str
 ):
+    if len(message.channel_mentions) > 1:
+        await message.channel.send(f"Too many channels")
+        return
     channel_id = message.channel.id
     if len(message.channel_mentions) > 0:
         channel_id = message.channel_mentions[0].id
