@@ -89,6 +89,7 @@ class Worker:
                                     if link_node.text is not None
                                     else link_node.attrib["href"]
                                 )
+                                new_seen += [link]
                                 item_title = item.find("title")
                                 if regex is not None and (
                                     item_title is None
@@ -96,16 +97,18 @@ class Worker:
                                     is None
                                 ):
                                     continue
-                                new_seen += [link]
                                 if link not in seen:
                                     logging.info(f"* {link}")
                                     links += [link]
                             if len(links) > 0:
-                                channel = await self.bot.client.fetch_channel(
-                                    channel_id
-                                )
-                                for link in links:
-                                    await channel.send(link)
+                                if len(seen) > 0:
+                                    channel = await self.bot.client.fetch_channel(
+                                        channel_id
+                                    )
+                                    for link in links:
+                                        await channel.send(link)
+                                else:
+                                    logging.info("First run, not sending messages")
                                 feeds[key] = (
                                     channel_id,
                                     feed_url,

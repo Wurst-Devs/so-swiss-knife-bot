@@ -47,7 +47,7 @@ async def on_mention(client: discord.client, message: discord.Message, *args: st
 
 bot = Bot(
     "SoSwissKnife",  # name
-    "0.5.4",  # version
+    "0.5.5",  # version
 )
 
 bot.log_calls = True
