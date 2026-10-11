@@ -1,7 +1,7 @@
 discord.py~=2.0.0
 python-dotenv>=0.17.1
 requests>=2.25.1
-git+https://github.com/Klemek/miniscord.git
+git+https://git.klemek.fr/klemek/miniscord.git
 croniter>=1.0.15
 python-dateutil>=1.4
 black>=24.10.0
